@@ -7,13 +7,7 @@ import { ethers } from 'ethers'
 import Navigation from './Navigation';
 import Loading from './Loading';
 
-import { loadProvider, loadNetwork, loadAccount } from '../store/interactions';
-
-// ABIs: Import your contract ABIs here
-// import TOKEN_ABI from '../abis/Token.json'
-
-// Config: Import your network config here
-// import config from '../config.json';
+import { loadProvider, loadNetwork, loadAccount, loadTokens, loadAMMs } from '../store/interactions';
 
 function App() {
   let account = '0x0...'
@@ -29,6 +23,10 @@ function App() {
 
     // Fetch accounts
     await loadAccount(dispatch)
+
+    // Initiate contracts
+    await loadTokens(provider, chainId, dispatch)
+    await loadAMMs(provider, chainId, dispatch)
   }
 
   useEffect(() => {
