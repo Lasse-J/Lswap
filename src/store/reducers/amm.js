@@ -5,9 +5,6 @@ export const amm = createSlice({
 	initialState: {
 		contract: [null, null, null],
 		shares: [0, 0, 0],
-//		lseusdshares: 0,
-//		methusdshares: 0,
-//		mbtcusdshares: 0,
 		swaps: []
 	},
 	reducers: {
