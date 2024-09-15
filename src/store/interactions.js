@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 import { setProvider, setNetwork, setAccount } from './reducers/provider'
 import { setContracts, setSymbols, balancesLoaded } from './reducers/tokens'
-import { setContract } from './reducers/amm'
+import { setContract, sharesLoaded } from './reducers/amm'
 import TOKEN_ABI from '../abis/Token.json';
 import AMM_ABI from '../abis/AMM.json';
 import config from '../config.json';
@@ -45,26 +45,42 @@ export const loadAMMs = async (provider, chainId, dispatch) => {
 	const lseusd = new ethers.Contract(config[chainId].lseusd.address, AMM_ABI, provider)
 	const methusd = new ethers.Contract(config[chainId].methusd.address, AMM_ABI, provider)
 	const mbtcusd = new ethers.Contract(config[chainId].mbtcusd.address, AMM_ABI, provider)
+//	const amm = ([lseusd, methusd, mbtcusd])
 
 	dispatch(setContract([lseusd, methusd, mbtcusd]))
-	return lseusd
-	return methusd
-	return mbtcusd
+//	return amm
+//	return lseusd
+//	return methusd
+//	return mbtcusd
 }
 
 // -----------------------------------------------------------------------------
 // LOAD BALANCES & SHARES
 
-export const loadBalances = async (tokens, account, dispatch) => {
+export const loadBalances = async (lseusd, methusd, mbtcusd, tokens, account, dispatch) => {
 	const balance1 = await tokens[0].balanceOf(account)
 	const balance2 = await tokens[1].balanceOf(account)
 	const balance3 = await tokens[2].balanceOf(account)
 	const balance4 = await tokens[3].balanceOf(account)
 
-	dispatch(balancesLoaded(
-		balance1,
-		balance2,
-		balance3,
-		balance4
-	))
+	dispatch(balancesLoaded([
+		ethers.utils.formatUnits(balance1.toString(), 'ether'),
+		ethers.utils.formatUnits(balance2.toString(), 'ether'),
+		ethers.utils.formatUnits(balance3.toString(), 'ether'),
+		ethers.utils.formatUnits(balance4.toString(), 'ether')
+	]))
+
+//	const shares = await amm.shares(account)
+	const shares1 = await lseusd.shares(account)
+	const shares2 = await methusd.shares(account)
+	const shares3 = await mbtcusd.shares(account)
+	dispatch(sharesLoaded([
+		ethers.utils.formatUnits(shares1.toString(), 'ether'),
+		ethers.utils.formatUnits(shares2.toString(), 'ether'),
+		ethers.utils.formatUnits(shares3.toString(), 'ether')
+	]))
+//	dispatch(sharesLoaded(ethers.utils.formatUnits(shareslseusd.toString(), 'ether')))
+//	dispatch(sharesLoaded(ethers.utils.formatUnits(sharesmethusd.toString(), 'ether')))
+//	dispatch(sharesLoaded(ethers.utils.formatUnits(sharesmbtcusd.toString(), 'ether')))
+
 }
