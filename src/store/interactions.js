@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 import { setProvider, setNetwork, setAccount } from './reducers/provider'
 import { setContracts, setSymbols, balancesLoaded } from './reducers/tokens'
-import { setContract, sharesLoaded } from './reducers/amm'
+import { setContract, sharesLoaded, swapRequest, swapSuccess, swapFail } from './reducers/amm'
 import TOKEN_ABI from '../abis/Token.json';
 import AMM_ABI from '../abis/AMM.json';
 import config from '../config.json';
@@ -79,8 +79,42 @@ export const loadBalances = async (lseusd, methusd, mbtcusd, tokens, account, di
 		ethers.utils.formatUnits(shares2.toString(), 'ether'),
 		ethers.utils.formatUnits(shares3.toString(), 'ether')
 	]))
-//	dispatch(sharesLoaded(ethers.utils.formatUnits(shareslseusd.toString(), 'ether')))
-//	dispatch(sharesLoaded(ethers.utils.formatUnits(sharesmethusd.toString(), 'ether')))
-//	dispatch(sharesLoaded(ethers.utils.formatUnits(sharesmbtcusd.toString(), 'ether')))
 
+}
+
+// -----------------------------------------------------------------------------
+// SWAP
+
+export const swap = async (provider, inputToken, outputToken, amm, token, symbol, amount, dispatch) => {
+	try {
+
+		dispatch(swapRequest())
+
+		let transaction
+		const signer = await provider.getSigner()
+
+		// Select AMM
+	//	if (inputToken === 'LSE' || outputToken === 'LSE') {
+	//		amm = amm[0]}
+	//	if (inputToken === 'mETH' || outputToken === 'mETH') {
+	//		amm = amm[1]}
+	//	if (inputToken === 'mBTC' || outputToken === 'mBTC') {
+	//		amm = amm[2]}
+
+		console.log('amm address', amm.address)
+		transaction = await token.connect(signer).approve(amm.address, amount)
+		await transaction.wait()	
+
+		if (symbol === 'USD') {
+			transaction = await amm.connect(signer).swapToken2(amount)
+		} else {
+			transaction = await amm.connect(signer).swapToken1(amount)
+		}
+		await transaction.wait()
+
+		dispatch(swapSuccess(transaction.hash))
+
+	} catch (error) {
+		dispatch(swapFail())
+	}
 }
