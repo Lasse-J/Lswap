@@ -25,7 +25,7 @@ const Swap = () => {
 	const provider = useSelector(state => state.provider.connection)
 	const account = useSelector(state => state.provider.account)
 	const tokens = useSelector(state => state.tokens.contracts)
-	const symbols = useSelector(state => state.tokens.symbols)
+//	const symbols = useSelector(state => state.tokens.symbols)
 	const balances = useSelector(state => state.tokens.balances)
 	const isSwapping = useSelector(state => state.amm.swapping.isSwapping)
 	const isSuccess = useSelector(state => state.amm.swapping.isSuccess)

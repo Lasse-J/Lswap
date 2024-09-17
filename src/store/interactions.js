@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 import { setProvider, setNetwork, setAccount } from './reducers/provider'
 import { setContracts, setSymbols, balancesLoaded } from './reducers/tokens'
-import { setContract, sharesLoaded, swapRequest, swapSuccess, swapFail } from './reducers/amm'
+import { setContract, sharesLoaded, depositRequest, depositSuccess, depositFail, swapRequest, swapSuccess, swapFail } from './reducers/amm'
 import TOKEN_ABI from '../abis/Token.json';
 import AMM_ABI from '../abis/AMM.json';
 import config from '../config.json';
@@ -83,6 +83,32 @@ export const loadBalances = async (lseusd, methusd, mbtcusd, tokens, account, di
 }
 
 // -----------------------------------------------------------------------------
+// ADD LIQUIDITY
+
+export const addLiquidity = async (provider, amm, token1, token2, amounts, dispatch) => {
+	try {
+
+		dispatch(depositRequest())
+
+		const signer = await provider.getSigner()
+		let transaction
+
+		transaction = await token1.connect(signer).approve(amm.address, amounts[0])
+		await transaction.wait()
+		transaction = await token2.connect(signer).approve(amm.address, amounts[1])
+		await transaction.wait()
+
+		transaction = await amm.connect(signer).addLiquidity(amounts[0], amounts[1])
+		await transaction.wait()
+
+		dispatch(depositSuccess(transaction.hash))
+
+	} catch (error) {
+		dispatch(depositFail())
+	}
+}
+
+// -----------------------------------------------------------------------------
 // SWAP
 
 export const swap = async (provider, inputToken, outputToken, amm, token, symbol, amount, dispatch) => {
@@ -92,14 +118,6 @@ export const swap = async (provider, inputToken, outputToken, amm, token, symbol
 
 		let transaction
 		const signer = await provider.getSigner()
-
-		// Select AMM
-	//	if (inputToken === 'LSE' || outputToken === 'LSE') {
-	//		amm = amm[0]}
-	//	if (inputToken === 'mETH' || outputToken === 'mETH') {
-	//		amm = amm[1]}
-	//	if (inputToken === 'mBTC' || outputToken === 'mBTC') {
-	//		amm = amm[2]}
 
 		console.log('amm address', amm.address)
 		transaction = await token.connect(signer).approve(amm.address, amount)
