@@ -74,7 +74,7 @@ const Deposit = () => {
 
 	const depositHandler = async (e) => {
 		e.preventDefault()
-		console.log('Depositing', tradingPair + ' and USD')
+
 		setShowAlert(false)
 
 		const _token1Amount = ethers.utils.parseUnits(token1Amount, 'ether')

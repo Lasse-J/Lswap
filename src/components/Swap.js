@@ -40,6 +40,9 @@ const Swap = () => {
 		'mBTC': useSelector(state => state.amm.contract[2])
 	};
 
+	// Select correct AMM contract
+	let amm = AMMContracts[tradingPair];
+
 	const balanceHelper = {
 		'LSE': useSelector(state => state.tokens.balances[0]),
 		'mETH': useSelector(state => state.tokens.balances[2]),
@@ -52,9 +55,6 @@ const Swap = () => {
 		'mETH': useSelector(state => state.tokens.contracts[2]),
 		'mBTC': useSelector(state => state.tokens.contracts[3])
 	};
-
-	// Select correct AMM contract
-	let amm = AMMContracts[tradingPair];
 
 	const pairHandler = async () => {
 		console.log({ tradingPair })

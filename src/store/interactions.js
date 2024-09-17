@@ -1,7 +1,27 @@
 import { ethers } from 'ethers'
-import { setProvider, setNetwork, setAccount } from './reducers/provider'
-import { setContracts, setSymbols, balancesLoaded } from './reducers/tokens'
-import { setContract, sharesLoaded, depositRequest, depositSuccess, depositFail, swapRequest, swapSuccess, swapFail } from './reducers/amm'
+import {
+	setProvider,
+	setNetwork,
+	setAccount
+} from './reducers/provider'
+import {
+	setContracts,
+	setSymbols,
+	balancesLoaded
+} from './reducers/tokens'
+import {
+	setContract,
+	sharesLoaded,
+	depositRequest,
+	depositSuccess,
+	depositFail,
+	withdrawRequest,
+	withdrawSuccess,
+	withdrawFail,
+	swapRequest,
+	swapSuccess,
+	swapFail
+} from './reducers/amm'
 import TOKEN_ABI from '../abis/Token.json';
 import AMM_ABI from '../abis/AMM.json';
 import config from '../config.json';
@@ -87,7 +107,6 @@ export const loadBalances = async (lseusd, methusd, mbtcusd, tokens, account, di
 
 export const addLiquidity = async (provider, amm, token1, token2, amounts, dispatch) => {
 	try {
-
 		dispatch(depositRequest())
 
 		const signer = await provider.getSigner()
@@ -109,11 +128,29 @@ export const addLiquidity = async (provider, amm, token1, token2, amounts, dispa
 }
 
 // -----------------------------------------------------------------------------
+// REMOVE LIQUIDITY
+
+export const removeLiquidity = async (provider, amm, shares, dispatch) => {
+	try {
+		dispatch(withdrawRequest())
+
+		const signer = await provider.getSigner()
+
+		let transaction = await amm.connect(signer).removeLiquidity(shares)
+		await transaction.wait()
+
+		dispatch(withdrawSuccess(transaction.hash))
+
+	} catch (error) {
+		dispatch(withdrawFail())
+	}
+}
+
+// -----------------------------------------------------------------------------
 // SWAP
 
 export const swap = async (provider, inputToken, outputToken, amm, token, symbol, amount, dispatch) => {
 	try {
-
 		dispatch(swapRequest())
 
 		let transaction
